@@ -1,10 +1,26 @@
-import Fastify from 'fastify';
+import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import userRoutes from './modules/user/user.route';
 import { userSchemas } from './modules/user/user.schema';
+import fjwt, { FastifyJWT } from '@fastify/jwt';
+import fCookie from '@fastify/cookie';
 
 const fastify = Fastify();
 
 async function main() {
+  fastify.register(fjwt, {
+    secret: process.env.JWT_SECRET || 'some-secret-key',
+  });
+
+  fastify.addHook('preHandler', (req, res, next) => {
+    req.jwt = fastify.jwt;
+    return next();
+  });
+
+  fastify.register(fCookie, {
+    secret: process.env.COOKIE_SECRET || 'some-secret-key',
+    hook: 'preHandler',
+  });
+
   for (const schema of userSchemas) {
     // should add these schemas before you register your routes
     fastify.addSchema(schema);
