@@ -1,9 +1,9 @@
 import { $ref } from './user.schema';
 import { FastifyInstance } from 'fastify';
-import { registerUserHandler } from './user.controller';
+import { loginHandler, registerUserHandler } from './user.controller';
 
-async function userRoutes(server: FastifyInstance) {
-  server.post(
+async function userRoutes(fastify: FastifyInstance) {
+  fastify.post(
     '/',
     {
       schema: {
@@ -14,6 +14,19 @@ async function userRoutes(server: FastifyInstance) {
       },
     },
     registerUserHandler,
+  );
+
+  fastify.post(
+    '/login',
+    {
+      schema: {
+        body: $ref('loginSchema'),
+        response: {
+          201: $ref('loginResponseSchema'),
+        },
+      },
+    },
+    loginHandler,
   );
 }
 
