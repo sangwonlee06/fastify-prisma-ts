@@ -1,6 +1,11 @@
 import { $ref } from './user.schema';
 import { FastifyInstance } from 'fastify';
-import { loginHandler, registerUserHandler } from './user.controller';
+import {
+  getUsersHandler,
+  loginHandler,
+  logoutHandler,
+  registerUserHandler,
+} from './user.controller';
 
 async function userRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -27,6 +32,22 @@ async function userRoutes(fastify: FastifyInstance) {
       },
     },
     loginHandler,
+  );
+
+  fastify.get(
+    '/',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    getUsersHandler,
+  );
+
+  fastify.delete(
+    '/logout',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    logoutHandler,
   );
 }
 
