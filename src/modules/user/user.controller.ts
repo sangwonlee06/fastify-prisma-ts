@@ -1,40 +1,31 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-
 import { CreateUserInput, LoginInput } from './user.schema';
 import { createUser, getUsers } from './user.service';
 import { verifyPassword } from '../../utils/hash';
 import { findUserByEmail } from '../../utils/auth';
 
-export async function registerUserHandler(
-  request: FastifyRequest<{
-    Body: CreateUserInput;
-  }>,
+export const registerUserHandler = async (
+  request: FastifyRequest<{ Body: CreateUserInput }>,
   reply: FastifyReply,
-) {
-  const body = request.body;
-
+) => {
   try {
-    const user = await createUser(body);
+    const user = await createUser(request.body);
     return reply.status(201).send(user);
   } catch (error) {
     console.error(error);
-    reply.status(500).send({
+    return reply.status(500).send({
       message: 'Internal Server Error',
-      error: error,
+      error,
     });
   }
-}
+};
 
-export async function loginHandler(
-  request: FastifyRequest<{
-    Body: LoginInput;
-  }>,
+export const loginHandler = async (
+  request: FastifyRequest<{ Body: LoginInput }>,
   reply: FastifyReply,
-) {
-  const body = request.body;
-
-  // Find a user by email
-  const user = await findUserByEmail(body.email);
+) => {
+  const { email, password } = request.body;
+  const user = await findUserByEmail(email);
 
   if (!user) {
     return reply.status(401).send({
@@ -42,9 +33,8 @@ export async function loginHandler(
     });
   }
 
-  // Verify password
   const isValidPassword = verifyPassword({
-    candidatePassword: body.password,
+    candidatePassword: password,
     salt: user.salt,
     hash: user.password,
   });
@@ -55,7 +45,7 @@ export async function loginHandler(
     });
   }
 
-  // Generate access token
+  // generate access token
   const payload = {
     id: user.id,
     email: user.email,
@@ -65,22 +55,19 @@ export async function loginHandler(
 
   reply.setCookie('access_token', token, {
     path: '/',
-    maxAge: 1000 * 60 * 60 * 24 * 7, // for a week
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
     httpOnly: true,
     secure: true,
   });
 
   return { accessToken: token };
-}
+};
 
-export async function getUsersHandler() {
-  const users = await getUsers();
+export const getUsersHandler = async () => {
+  return getUsers();
+};
 
-  return users;
-}
-
-export async function logoutHandler(request: FastifyRequest, reply: FastifyReply) {
+export const logoutHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   reply.clearCookie('access_token');
-
   return reply.status(201).send({ message: 'Logout successfully' });
-}
+};

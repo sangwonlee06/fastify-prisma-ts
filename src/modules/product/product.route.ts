@@ -7,7 +7,7 @@ import {
   productsResponseSchema,
 } from './product.schema';
 
-export default async function productRoutes(fastify: FastifyInstance) {
+const productRoutes = async (fastify: FastifyInstance) => {
   const fp = fastify.withTypeProvider<ZodTypeProvider>();
 
   fp.post(
@@ -35,4 +35,6 @@ export default async function productRoutes(fastify: FastifyInstance) {
     },
     getProductsHandler,
   );
-}
+};
+
+export default productRoutes;

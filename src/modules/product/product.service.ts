@@ -1,13 +1,13 @@
 import { db } from '../../utils/prisma';
 import { CreateProductInput } from './product.schema';
 
-export async function createProduct(data: CreateProductInput & { ownerId: number }) {
+export const createProduct = async (data: CreateProductInput & { ownerId: number }) => {
   return db.product.create({
     data,
   });
-}
+};
 
-export async function getProducts() {
+export const getProducts = async () => {
   return db.product.findMany({
     include: {
       owner: {
@@ -18,4 +18,4 @@ export async function getProducts() {
       },
     },
   });
-}
+};

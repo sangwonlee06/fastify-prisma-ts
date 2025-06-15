@@ -5,7 +5,7 @@ import productRoutes from './modules/product/product.route';
 import fjwt from '@fastify/jwt';
 import fCookie from '@fastify/cookie';
 
-async function main() {
+const main = async (): Promise<void> => {
   const fastify = Fastify();
 
   // Zod compilers for all routes
@@ -93,6 +93,6 @@ async function main() {
     console.error(err);
     process.exit(1);
   }
-}
+};
 
 main();

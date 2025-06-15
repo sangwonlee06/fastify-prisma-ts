@@ -13,7 +13,7 @@ import {
   loginResponseSchema,
 } from './user.schema';
 
-export default async function userRoutes(fastify: FastifyInstance) {
+const userRoutes = async (fastify: FastifyInstance) => {
   const fp = fastify.withTypeProvider<ZodTypeProvider>();
 
   fp.post(
@@ -41,4 +41,6 @@ export default async function userRoutes(fastify: FastifyInstance) {
   fp.get('/', { preHandler: [fastify.authenticate] }, getUsersHandler);
 
   fp.delete('/logout', { preHandler: [fastify.authenticate] }, logoutHandler);
-}
+};
+
+export default userRoutes;

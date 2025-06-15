@@ -2,9 +2,8 @@ import { db } from '../../utils/prisma';
 import { CreateUserInput } from './user.schema';
 import { hashPassword } from '../../utils/hash';
 
-export async function createUser(input: CreateUserInput) {
+export const createUser = async (input: CreateUserInput) => {
   const { password, ...rest } = input;
-
   const { hash, salt } = hashPassword(password);
 
   const user = await db.user.create({
@@ -12,9 +11,9 @@ export async function createUser(input: CreateUserInput) {
   });
 
   return user;
-}
+};
 
-export async function getUsers() {
+export const getUsers = async () => {
   return db.user.findMany({
     select: {
       id: true,
@@ -22,4 +21,4 @@ export async function getUsers() {
       email: true,
     },
   });
-}
+};
