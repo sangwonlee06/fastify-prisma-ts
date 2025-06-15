@@ -3,6 +3,8 @@ import userRoutes from './modules/user/user.route';
 import { userSchemas } from './modules/user/user.schema';
 import fjwt, { FastifyJWT } from '@fastify/jwt';
 import fCookie from '@fastify/cookie';
+import { productSchemas } from './modules/product/product.schema';
+import productRoutes from './modules/product/product.route';
 
 const fastify = Fastify();
 
@@ -32,12 +34,13 @@ async function main() {
     hook: 'preHandler',
   });
 
-  for (const schema of userSchemas) {
+  for (const schema of [...userSchemas, ...productSchemas]) {
     // should add these schemas before you register your routes
     fastify.addSchema(schema);
   }
 
   fastify.register(userRoutes, { prefix: 'api/users' }); // routes register
+  fastify.register(productRoutes, { prefix: 'api/products' });
 
   try {
     await fastify.listen({ port: 3000, host: '0.0.0.0' });
