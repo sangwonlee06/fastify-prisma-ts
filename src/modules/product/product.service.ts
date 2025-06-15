@@ -6,3 +6,16 @@ export async function createProduct(data: CreateProductInput & { ownerId: number
     data,
   });
 }
+
+export async function getProducts() {
+  return db.product.findMany({
+    include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+}

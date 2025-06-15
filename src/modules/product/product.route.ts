@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 
-import { createProductHandler } from './product.controller';
+import { createProductHandler, getProductsHandler } from './product.controller';
 import { $ref } from './product.schema';
 
 async function productRoutes(fastify: FastifyInstance) {
@@ -16,6 +16,19 @@ async function productRoutes(fastify: FastifyInstance) {
       },
     },
     createProductHandler,
+  );
+
+  fastify.get(
+    // public API endpoint
+    '/',
+    {
+      schema: {
+        response: {
+          201: $ref('productsResponseSchema'),
+        },
+      },
+    },
+    getProductsHandler,
   );
 }
 
