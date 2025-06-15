@@ -1,35 +1,38 @@
 import { FastifyInstance } from 'fastify';
-
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { createProductHandler, getProductsHandler } from './product.controller';
-import { $ref } from './product.schema';
+import {
+  createProductSchema,
+  productResponseSchema,
+  productsResponseSchema,
+} from './product.schema';
 
-async function productRoutes(fastify: FastifyInstance) {
-  fastify.post(
+export default async function productRoutes(fastify: FastifyInstance) {
+  const fp = fastify.withTypeProvider<ZodTypeProvider>();
+
+  fp.post(
     '/',
     {
       preHandler: [fastify.authenticate],
       schema: {
-        body: $ref('createProductSchema'),
+        body: createProductSchema,
         response: {
-          201: $ref('productResponseSchema'),
+          201: productResponseSchema,
         },
       },
     },
     createProductHandler,
   );
 
-  fastify.get(
-    // public API endpoint
+  fp.get(
     '/',
     {
       schema: {
         response: {
-          201: $ref('productsResponseSchema'),
+          201: productsResponseSchema,
         },
       },
     },
     getProductsHandler,
   );
 }
-
-export default productRoutes;

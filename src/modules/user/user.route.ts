@@ -1,54 +1,44 @@
-import { $ref } from './user.schema';
 import { FastifyInstance } from 'fastify';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import {
   getUsersHandler,
   loginHandler,
   logoutHandler,
   registerUserHandler,
 } from './user.controller';
+import {
+  createUserSchema,
+  createUserResponseSchema,
+  loginSchema,
+  loginResponseSchema,
+} from './user.schema';
 
-async function userRoutes(fastify: FastifyInstance) {
-  fastify.post(
+export default async function userRoutes(fastify: FastifyInstance) {
+  const fp = fastify.withTypeProvider<ZodTypeProvider>();
+
+  fp.post(
     '/',
     {
       schema: {
-        body: $ref('createUserSchema'),
-        response: {
-          201: $ref('createUserResponseSchema'),
-        },
+        body: createUserSchema,
+        response: { 201: createUserResponseSchema },
       },
     },
     registerUserHandler,
   );
 
-  fastify.post(
+  fp.post(
     '/login',
     {
       schema: {
-        body: $ref('loginSchema'),
-        response: {
-          201: $ref('loginResponseSchema'),
-        },
+        body: loginSchema,
+        response: { 201: loginResponseSchema },
       },
     },
     loginHandler,
   );
 
-  fastify.get(
-    '/',
-    {
-      preHandler: [fastify.authenticate],
-    },
-    getUsersHandler,
-  );
+  fp.get('/', { preHandler: [fastify.authenticate] }, getUsersHandler);
 
-  fastify.delete(
-    '/logout',
-    {
-      preHandler: [fastify.authenticate],
-    },
-    logoutHandler,
-  );
+  fp.delete('/logout', { preHandler: [fastify.authenticate] }, logoutHandler);
 }
-
-export default userRoutes;
