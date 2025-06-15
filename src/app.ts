@@ -4,6 +4,7 @@ import userRoutes from './modules/user/user.route';
 import productRoutes from './modules/product/product.route';
 import fjwt from '@fastify/jwt';
 import fCookie from '@fastify/cookie';
+import { UserPayload } from '../global';
 
 const main = async (): Promise<void> => {
   const fastify = Fastify();
@@ -25,12 +26,12 @@ const main = async (): Promise<void> => {
 
   // Authentication decorator
   fastify.decorate('authenticate', async (request: FastifyRequest, reply: FastifyReply) => {
-    const token = request.cookies.access_token;
-    if (!token) {
+    try {
+      // verifies token from cookies and sets request.user to UserPayload
+      await request.jwtVerify<UserPayload>();
+    } catch (err) {
       return reply.status(401).send({ message: 'Authentication required' });
     }
-    const decoded = request.jwt.verify(token);
-    request.user = decoded;
   });
 
   // Attach jwt helper to request
